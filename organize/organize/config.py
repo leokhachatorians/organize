@@ -31,7 +31,14 @@ def make(data):
             a = urwid.Text(i)
             body.append(a)
         body.append(urwid.Divider())
+
+    btn = urwid.Button(u'Exit')
+    urwid.connect_signal(btn, 'click', exit_program)
+    body.append(btn)
     return urwid.ListBox(urwid.SimpleFocusListWalker(body))
+
+def exit_program(button):
+    raise urwid.ExitMainLoop()
 
 main = urwid.Padding(make(data), left=2, right=2)
 top = urwid.Overlay(main, urwid.SolidFill(u'\N{MEDIUM SHADE}'),
