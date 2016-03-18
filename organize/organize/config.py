@@ -99,14 +99,8 @@ class ConfigView():
         go_back = urwid.Button(u'Go Back')
         urwid.connect_signal(go_back, 'click', self.back_to_opened_folder_display)
         body.append(go_back)
-
-        self.main_widget.original_widget = urwid.Overlay(
-            urwid.ListBox(urwid.SimpleListWalker(
-                body)),
-            urwid.SolidFill(u'\N{MEDIUM SHADE}'),
-                align='center', width=('relative', 100),
-                valign='middle', height=('relative', 75),
-                min_width=20, min_height=9)
+        
+        self.main_widget.original_widget = urwid.ListBox(urwid.SimpleListWalker(body))
         self.new_format_display = self.main_widget.original_widget
 
     def on_save_format_click(self, button):
