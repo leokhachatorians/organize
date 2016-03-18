@@ -60,17 +60,17 @@ class ConfigView():
 
     def make_open_folder_display(self, button):
         body = []
-        folder = button.get_label()
-        body.append(urwid.Text(folder))
+        self.opened_folder = button.get_label()
+        body.append(urwid.Text(self.opened_folder))
 
-        for formats in self.data[folder]:
-            body.append(urwid.Text(formats))
+        for extensions in self.data[self.opened_folder]:
+            body.append(urwid.Text(extensions))
 
         body.append(urwid.Divider())
 
-        new_format_button = urwid.Button(u'Add a Format')
-        urwid.connect_signal(new_format_button, 'click', self.make_new_format_display)
-        body.append(new_format_button)
+        new_extension_button = urwid.Button(u'Add an Extension')
+        urwid.connect_signal(new_extension_button, 'click', self.make_new_extension_display)
+        body.append(new_extension_button)
         
         go_back = urwid.Button(u'Go Back')
         urwid.connect_signal(go_back, 'click', self.back_to_main_display)
@@ -83,17 +83,17 @@ class ConfigView():
         self.main_widget.original_widget = urwid.ListBox(urwid.SimpleFocusListWalker(body))
         self.opened_folder_display = self.main_widget.original_widget
 
-    def make_new_format_display(self, button):
+    def make_new_extension_display(self, button):
         body = []
 
-        text = urwid.Text(u'Add a Format')
+        text = urwid.Text(u'Add an extension to {}'.format(self.opened_folder))
         body.append(text)
 
-        self.new_format = urwid.Edit(u'Format: ')
-        body.append(self.new_format)
+        self.new_extension = urwid.Edit(u'Extension: ')
+        body.append(self.new_extension)
 
-        save = urwid.Button(u'Save Format')
-        urwid.connect_signal(save, 'click', self.on_save_format_click)
+        save = urwid.Button(u'Save Excention')
+        urwid.connect_signal(save, 'click', self.on_save_extension_click)
         body.append(save)
 
         go_back = urwid.Button(u'Go Back')
@@ -101,27 +101,47 @@ class ConfigView():
         body.append(go_back)
         
         self.main_widget.original_widget = urwid.ListBox(urwid.SimpleListWalker(body))
-        self.new_format_display = self.main_widget.original_widget
+        self.new_extension_display = self.main_widget.original_widget
 
-    def on_save_format_click(self, button):
-        if self.check_if_valid_format():
+    def on_save_extension_click(self, button):
+        if self.check_if_valid_extension():
             self.ask_to_save()
 
-    def check_if_valid_format(self):
+    def check_if_valid_extension(self):
         errors = []
-        format_text = self.new_format.get_edit_text()
+        extension_text = self.new_extension.get_edit_text()
 
-        if len(format_text) < 1:
+        if len(extension_text) <= 1:
             errors.append('You need to enter something')
             self.display_errors(errors)
         else:
-            if format_text[0] != '.' or '/' in format_text:
+            if extension_text[0] != '.' or '/' in extension_text:
                 errors.append('That\'s not a valid extension.')
             
             if errors:
                 self.display_errors(errors)
             else:
                 return True
+
+    def ask_to_save(self):
+        body = []
+
+        text = urwid.Text(u'Add extension <{0}> to <{1}> folder?'.format(
+            self.new_extension.get_edit_text(),
+            self.opened_folder))
+        body.append(text)
+
+        yes = urwid.Button(u'Yes')
+        body.append(yes)
+
+        cancel = urwid.Button(u'Cancel')
+        urwid.connect_signal(cancel, 'click', self.back_to_new_extension_display)
+        body.append(cancel)
+
+        self.main_widget.original_widget = urwid.ListBox(urwid.SimpleListWalker(body))
+        urwid.connect_signal(cancel, 'click', self.back_to_new_extension_display)
+        urwid.connect_signal(cancel, 'click', self.back_to_new_extension_display)
+
 
     def display_errors(self, errors):
         body = []
@@ -137,16 +157,10 @@ class ConfigView():
         body.append(urwid.Text(u'\n\n'))
 
         go_back = urwid.Button(u'Go Back')
-        urwid.connect_signal(go_back, 'click', self.back_to_new_format_display)
+        urwid.connect_signal(go_back, 'click', self.back_to_new_extension_display)
         body.append(go_back)
 
-        self.main_widget.original_widget = urwid.Overlay(
-            urwid.ListBox(urwid.SimpleListWalker(
-                body)),
-            urwid.SolidFill(u'\N{MEDIUM SHADE}'),
-                align='center', width=('relative', 100),
-                valign='middle', height=('relative', 75),
-                min_width=20, min_height=9)
+        self.main_widget.original_widget = urwid.ListBox(urwid.SimpleListWalker(body))
 
     def back_to_main_display(self, button):
         self.main_widget.original_widget = self.main_display
@@ -154,8 +168,8 @@ class ConfigView():
     def back_to_opened_folder_display(self, button):
         self.main_widget.original_widget = self.opened_folder_display
 
-    def back_to_new_format_display(self, button):
-        self.main_widget.original_widget = self.new_format_display
+    def back_to_new_extension_display(self, button):
+        self.main_widget.original_widget = self.new_extension_display
      
     def _run(self):
         self.make_main_display()
