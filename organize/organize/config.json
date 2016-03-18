@@ -1,11 +1,14 @@
 {
 	"Music": [
-		".mp3", ".wav", ".flac", ".wma", ".raw"
+		" .mp3", " .wav", " .flac", " .wma", " .raw"
 		],
 	"Pictures": [
-		".jpg", ".bmp", ".gif", ".png"
+		" .jpg", " .bmp", " .gif", " .png"
 		],
 	"Text Stuff": [
-		".txt", ".pdf", ".doc", "docx"
+		" .txt", " .pdf", " .doc", " .docx"
+		],
+	"Place Holder": [
+		" .this", " .that"
 		]
 }
