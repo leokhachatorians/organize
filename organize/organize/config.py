@@ -39,9 +39,6 @@ class ConfigView():
         exit_button = urwid.Button(u'Exit')
         urwid.connect_signal(exit_button, 'click', self.exit)
         
-        save_button = urwid.Button(u'Save')
-        #urwid.connect_signal(save_button, 'click', self.save_changes)
-
         self.body.append(urwid.Divider())
     
         for a_folder in self.data:
@@ -52,8 +49,8 @@ class ConfigView():
 
         self.body.append(urwid.Divider())
         self.body.append(new_folder_button)
-        self.body.append(save_button)
         self.body.append(exit_button)
+
         self.top = urwid.ListBox(urwid.SimpleFocusListWalker(self.body))
         self.main_widget = urwid.Padding(self.top, left=0, right=0)
         self.main_display = self.main_widget.original_widget
@@ -61,17 +58,20 @@ class ConfigView():
     def make_open_folder_display(self, button):
         body = []
         self.opened_folder = button.get_label()
-        body.append(urwid.Text(self.opened_folder))
+        body.append(urwid.Text('Folder: ' + self.opened_folder))
 
         for extensions in self.data[self.opened_folder]:
             body.append(urwid.Text(extensions))
 
         body.append(urwid.Divider())
 
-        new_extension_button = urwid.Button(u'Add an Extension')
-        urwid.connect_signal(new_extension_button, 'click', self.make_new_extension_display)
-        body.append(new_extension_button)
+        new_extension = urwid.Button(u'Add an Extension')
+        urwid.connect_signal(new_extension, 'click', self.make_new_extension_display)
+        body.append(new_extension)
         
+        delete = urwid.Button(u'Delete an Extension')
+        body.append(delete)
+
         go_back = urwid.Button(u'Go Back')
         urwid.connect_signal(go_back, 'click', self.back_to_main_display)
         body.append(go_back)
@@ -132,6 +132,7 @@ class ConfigView():
         body.append(text)
 
         yes = urwid.Button(u'Yes')
+        urwid.connect_signal(yes, 'click', self.save_extension_to_folder)
         body.append(yes)
 
         cancel = urwid.Button(u'Cancel')
@@ -139,9 +140,14 @@ class ConfigView():
         body.append(cancel)
 
         self.main_widget.original_widget = urwid.ListBox(urwid.SimpleListWalker(body))
-        urwid.connect_signal(cancel, 'click', self.back_to_new_extension_display)
-        urwid.connect_signal(cancel, 'click', self.back_to_new_extension_display)
 
+    def save_extension_to_folder(self, button):
+        self.data[self.opened_folder] += [self.new_extension.get_edit_text()]
+
+        with open('config.json', 'w') as data:
+            json.dump(self.data, data)
+
+        self.main_widget.original_widget = self.main_display
 
     def display_errors(self, errors):
         body = []
