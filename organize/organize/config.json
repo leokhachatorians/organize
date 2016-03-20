@@ -1,1 +1,1 @@
-{"Text Stuff": [".txt", ".pdf", ".doc"], "Music": [".m4a", ".mp3"], "Place Holder": [".this", ".that", ".poop", ".aw"], "Pictures": [".jpg", ".bmp", ".gif", ".png", ".test", ".gif"]}
+{"Python": [".py", ".pyc"], "TEST": [], "Pictures": [".jpg", ".gif", ".png"], "Music": [".mp3", ".wav", ".flac"], "Text Documents": [".txt", ".pdf", ".doc"]}

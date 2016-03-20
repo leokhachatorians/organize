@@ -1,6 +1,5 @@
 import urwid
 import json
-import pprint
 
 class ConfigView():
     def __init__(self):
@@ -11,32 +10,125 @@ class ConfigView():
         with open('config.json') as config_file:
             self.data = json.load(config_file)
 
-    def make_main_display(self):
+    def make_main_display(self, button=None):
         body = []
         body.append(urwid.Text(u'Folders'))
-        body.append(urwid.Divider())
 
-        new_folder_button =  urwid.Button(u'New Folder')
-        urwid.connect_signal(new_folder_button, 'click', self._make_new_folder)
-
-        exit_button = urwid.Button(u'Exit')
-        urwid.connect_signal(exit_button, 'click', self.exit)
-        
-        body.append(urwid.Divider())
-    
         for a_folder in self.data:
             folder_button = urwid.Button(a_folder)
             urwid.connect_signal(folder_button, 'click', self.make_open_folder_display)
             body.append(folder_button)
             body.append(urwid.Divider())
 
+        new_folder =  urwid.Button(u'New Folder')
+        urwid.connect_signal(new_folder, 'click', self.make_new_folder_display)
+
+        delete_folder = urwid.Button(u'Delete Folder')
+        urwid.connect_signal(delete_folder, 'click', self.delete_folder_display)
+
+        exit_button = urwid.Button(u'Exit')
+        urwid.connect_signal(exit_button, 'click', self.exit)
+        
         body.append(urwid.Divider())
-        body.append(new_folder_button)
+        body.append(new_folder)
+        body.append(delete_folder)
         body.append(exit_button)
 
         self.top = urwid.ListBox(urwid.SimpleFocusListWalker(body))
         self.main_widget = urwid.Padding(self.top, left=0, right=0)
         self.main_display = self.main_widget.original_widget
+
+    def make_new_folder_display(self, button):
+        text = urwid.Text(u'Make a New Folder')
+
+        self.new_folder = urwid.Edit(u'Folder Name: ')
+        
+        save = urwid.Button(u'Save Folder')
+        urwid.connect_signal(save, 'click', self.on_save_folder_click)
+
+        cancel = urwid.Button(u'Cancel')
+        urwid.connect_signal(cancel, 'click', self.back_to_main_display)
+
+        body = [text,
+                urwid.Divider(),
+                self.new_folder,
+                urwid.Divider(),
+                save,
+                cancel]
+
+        self.main_widget.original_widget = urwid.ListBox(urwid.SimpleListWalker(body))
+
+    def on_save_folder_click(self, button):
+        if self.check_if_valid_folder():
+            self.ask_to_save_folder()
+
+    def check_if_valid_folder(self):
+        errors = []
+        folder_text = self.new_folder.get_edit_text()
+
+        if len(folder_text) < 1:
+            errors.append('You need to enter something')
+            self.display_errors(errors)
+        else:
+            if any(char in folder_text for char in ['\0', '/']):
+                errors.append('Invalid characters in folder name')
+
+            if errors:
+                self.display_errors(errors, folder=True)
+            else:
+                return True
+
+    def ask_to_save_folder(self):
+        text = urwid.Text('Create new folder <{0}>?'.format(
+            self.new_folder.get_edit_text()))
+
+        yes = urwid.Button(u'Yes')
+        urwid.connect_signal(yes,'click', self.save_folder)
+        
+        cancel = urwid.Button(u'Cancel')
+        urwid.connect_signal(cancel, 'click', self.back_to_main_display)
+
+        body = [text,
+                yes,
+                cancel]
+
+        self.main_widget.original_widget = urwid.ListBox(urwid.SimpleListWalker(body))
+
+    def save_folder(self, button):
+        self.data[self.new_folder.get_edit_text()] = []
+        self.save_config()
+        self.main_widget.original_widget = self.main_display
+
+    def delete_folder_display(self, button=None):
+        body = []
+
+        text = urwid.Text(u'Delete Folder')
+        body.append(text)
+
+        for folder in self.data:
+            button = urwid.Button(folder)
+            urwid.connect_signal(button, 'click', self.delete_folder)
+            body.append(button)
+        
+        body.append(urwid.Divider())
+
+        cancel = urwid.Button(u'Cancel')
+        urwid.connect_signal(cancel, 'click', self.back_to_main_display)
+        body.append(cancel)
+
+        self.main_widget.original_widget = urwid.ListBox(urwid.SimpleFocusListWalker(body))
+
+    def delete_folder(self, button):
+        folder = button.get_label()
+        self.data.pop(folder, None)
+
+        self.save_config()
+        #self.make_main_display()
+        self.update()
+        #self.back_to_main_display()
+        #self.delete_folder_display()
+        self.make_main_display()
+        self.back_to_main_display()
 
     def make_open_folder_display(self, button):
         body = []
@@ -59,10 +151,6 @@ class ConfigView():
         go_back = urwid.Button(u'Go Back')
         urwid.connect_signal(go_back, 'click', self.back_to_main_display)
         body.append(go_back)
-
-        exit = urwid.Button(u'Exit')
-        urwid.connect_signal(exit, 'click', self.exit)
-        body.append(exit)
 
         self.main_widget.original_widget = urwid.ListBox(urwid.SimpleFocusListWalker(body))
         self.opened_folder_display = self.main_widget.original_widget
@@ -162,7 +250,7 @@ class ConfigView():
 
         self.main_widget.original_widget = self.main_display
 
-    def display_errors(self, errors):
+    def display_errors(self, errors, folder=False):
         body = []
         big_text = urwid.BigText("Error!", urwid.HalfBlock5x4Font())
         big_text = urwid.Padding(big_text, 'center', None)
@@ -176,7 +264,10 @@ class ConfigView():
         body.append(urwid.Text(u'\n\n'))
 
         go_back = urwid.Button(u'Go Back')
-        urwid.connect_signal(go_back, 'click', self.back_to_new_extension_display)
+        if folder:
+            urwid.connect_signal(go_back, 'click', self.back_to_main_display)
+        else:
+            urwid.connect_signal(go_back, 'click', self.back_to_new_extension_display)
         body.append(go_back)
 
         self.main_widget.original_widget = urwid.ListBox(urwid.SimpleListWalker(body))
@@ -196,10 +287,11 @@ class ConfigView():
      
     def _run(self):
         self.make_main_display()
-        urwid.MainLoop(self.main_widget).run()
+        self.main_loop = urwid.MainLoop(self.main_widget)
+        self.main_loop.run()
 
-    def _make_new_folder(self, button):
-        raise urwid.ExitMainLoop()
+    def update(self):
+        self.main_loop.draw_screen()
 
     def exit(self, button):
         raise urwid.ExitMainLoop()
