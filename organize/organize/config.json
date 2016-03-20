@@ -1,1 +1,25 @@
-{"Python": [".py", ".pyc"], "TEST": [], "Pictures": [".jpg", ".gif", ".png"], "Music": [".mp3", ".wav", ".flac"], "Text Documents": [".txt", ".pdf", ".doc"]}
+{
+    "Music": [
+        ".mp3",
+        ".wav",
+        ".flac"
+    ],
+    "Pictures": [
+        ".jpg",
+        ".gif",
+        ".png"
+    ],
+    "Python": [
+        ".py",
+        ".pyc"
+    ],
+    "TEST": [
+        ".POOP",
+        ".AAAA"
+    ],
+    "Text Documents": [
+        ".txt",
+        ".pdf",
+        ".doc"
+    ]
+}

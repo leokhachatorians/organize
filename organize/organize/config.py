@@ -274,7 +274,7 @@ class ConfigView():
 
     def save_config(self):
         with open('config.json', 'w') as data:
-            json.dump(self.data, data)
+            json.dump(self.data, data, indent=4, sort_keys=True)
 
     def back_to_main_display(self, button=None):
         self.main_widget.original_widget = self.main_display
