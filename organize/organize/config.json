@@ -13,10 +13,7 @@
         ".py",
         ".pyc"
     ],
-    "TEST": [
-        ".POOP",
-        ".AAAA"
-    ],
+    "Test": [],
     "Text Documents": [
         ".txt",
         ".pdf",

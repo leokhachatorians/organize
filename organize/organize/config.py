@@ -6,6 +6,32 @@ class ConfigView():
         self._open_config()
         self._run()
 
+    def make_intro_display(self):
+
+        bigtext = urwid.BigText("Config", urwid.HalfBlock5x4Font())
+        bigtext = urwid.Padding(bigtext, "center", None)
+
+        text = urwid.Text('Customize how you want to organize your files')
+
+        goto_main = urwid.Button(u'Click Me')
+        urwid.connect_signal(goto_main, 'click', self.make_main_display)
+
+        exit = urwid.Button(u'Exit')
+        urwid.connect_signal(exit, 'click', self.exit)
+
+        body = [bigtext,
+                urwid.Text(u'\n'),
+                text,
+                goto_main,
+                exit]
+
+        self.top = urwid.ListBox(urwid.SimpleFocusListWalker(body))
+        self.main_widget = urwid.Padding(self.top, left=0, right=0)
+        self.intro_display = self.main_widget.original_widget
+
+    def a(self, button=None):
+        self.main_widget.original_widget = self.intro_display
+
     def _open_config(self):
         with open('config.json') as config_file:
             self.data = json.load(config_file)
@@ -28,21 +54,19 @@ class ConfigView():
 
         exit_button = urwid.Button(u'Exit')
         urwid.connect_signal(exit_button, 'click', self.exit)
-        
+
         body.append(urwid.Divider())
         body.append(new_folder)
         body.append(delete_folder)
         body.append(exit_button)
 
-        self.top = urwid.ListBox(urwid.SimpleFocusListWalker(body))
-        self.main_widget = urwid.Padding(self.top, left=0, right=0)
+        self.main_widget.original_widget = urwid.ListBox(urwid.SimpleListWalker(body))
         self.main_display = self.main_widget.original_widget
 
     def make_new_folder_display(self, button):
         text = urwid.Text(u'Make a New Folder')
 
         self.new_folder = urwid.Edit(u'Folder Name: ')
-        
         save = urwid.Button(u'Save Folder')
         urwid.connect_signal(save, 'click', self.on_save_folder_click)
 
@@ -84,7 +108,7 @@ class ConfigView():
 
         yes = urwid.Button(u'Yes')
         urwid.connect_signal(yes,'click', self.save_folder)
-        
+
         cancel = urwid.Button(u'Cancel')
         urwid.connect_signal(cancel, 'click', self.back_to_main_display)
 
@@ -97,7 +121,7 @@ class ConfigView():
     def save_folder(self, button):
         self.data[self.new_folder.get_edit_text()] = []
         self.save_config()
-        self.main_widget.original_widget = self.main_display
+        self.make_main_display()
 
     def delete_folder_display(self, button=None):
         body = []
@@ -109,7 +133,7 @@ class ConfigView():
             button = urwid.Button(folder)
             urwid.connect_signal(button, 'click', self.delete_folder)
             body.append(button)
-        
+
         body.append(urwid.Divider())
 
         cancel = urwid.Button(u'Cancel')
@@ -123,10 +147,6 @@ class ConfigView():
         self.data.pop(folder, None)
 
         self.save_config()
-        #self.make_main_display()
-        self.update()
-        #self.back_to_main_display()
-        #self.delete_folder_display()
         self.make_main_display()
         self.back_to_main_display()
 
@@ -143,7 +163,7 @@ class ConfigView():
         new_extension = urwid.Button(u'Add an Extension')
         urwid.connect_signal(new_extension, 'click', self.make_new_extension_display)
         body.append(new_extension)
-        
+
         delete = urwid.Button(u'Delete an Extension')
         urwid.connect_signal(delete, 'click', self.delete_extension_display)
         body.append(delete)
@@ -199,7 +219,7 @@ class ConfigView():
                 self.new_extension,
                 save,
                 go_back]
-                
+
         self.main_widget.original_widget = urwid.ListBox(urwid.SimpleListWalker(body))
         self.new_extension_display = self.main_widget.original_widget
 
@@ -217,7 +237,7 @@ class ConfigView():
         else:
             if extension_text[0] != '.' or '/' in extension_text:
                 errors.append('That\'s not a valid extension.')
-           
+
             if extension_text in self.data[self.opened_folder]:
                 errors.append('That extension already exists in that folder')
 
@@ -240,7 +260,7 @@ class ConfigView():
         body = [text,
                 yes,
                 cancel]
-    
+
         self.main_widget.original_widget = urwid.ListBox(urwid.SimpleListWalker(body))
 
     def save_extension_to_folder(self, button):
@@ -284,14 +304,11 @@ class ConfigView():
 
     def back_to_new_extension_display(self, button):
         self.main_widget.original_widget = self.new_extension_display
-     
+
     def _run(self):
-        self.make_main_display()
+        self.make_intro_display()
         self.main_loop = urwid.MainLoop(self.main_widget)
         self.main_loop.run()
-
-    def update(self):
-        self.main_loop.draw_screen()
 
     def exit(self, button):
         raise urwid.ExitMainLoop()
