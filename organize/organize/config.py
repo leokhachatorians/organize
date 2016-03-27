@@ -53,7 +53,7 @@ class MainDisplay(BaseView):
             ('save', 'white', 'dark green'),
             ('delete', 'white', 'dark red'),
             ('error', 'default, bold', 'dark red', 'black')]
-        self._run()
+        #self._run()
 
     def make_intro_display(self):
         bigtext = urwid.BigText("Config", urwid.HalfBlock5x4Font())
@@ -77,7 +77,7 @@ class MainDisplay(BaseView):
         self.main_widget = urwid.Padding(self.top, left=0, right=0)
         self.intro_display = self.main_widget.original_widget
 
-    def _run(self):
+    def run(self):
         self.make_intro_display()
         self.main_loop = urwid.MainLoop(self.main_widget, self.palette)
         self.main_loop.run()
@@ -379,4 +379,4 @@ class OpenedFolderView(BaseView):
         self.save_config()
         self.back_to_main_display()
 
-a = MainDisplay()
+#a = MainDisplay()
