@@ -198,7 +198,7 @@ class FoldersView(BaseView):
 
         for folder in self.data:
             button = urwid.Button(folder)
-            urwid.connect_signal(button, 'click', self.delete_folder)
+            urwid.connect_signal(button, 'click', self.verify_delete_folder)
             body.append(urwid.AttrMap(button, None, focus_map='delete'))
 
         body.append(urwid.Divider())
@@ -209,9 +209,25 @@ class FoldersView(BaseView):
 
         self.main_widget.original_widget = urwid.ListBox(urwid.SimpleFocusListWalker(body))
 
+    def verify_delete_folder(self, button):
+        self.folder_to_delete = button.get_label()
+        text = urwid.Text(u'Delete folder <{}>?'.format(self.folder_to_delete))
+
+        delete = urwid.Button(u'Delete')
+        urwid.connect_signal(delete, 'click', self.delete_folder)
+
+        cancel = urwid.Button(u'Cancel')
+        urwid.connect_signal(cancel, 'click', self.back_to_main_display)
+
+        body = [text,
+                urwid.Divider(),
+                urwid.AttrMap(delete, None, focus_map='delete'),
+                urwid.AttrMap(cancel, None, focus_map='selected')]
+
+        self.main_widget.original_widget = urwid.ListBox(urwid.SimpleFocusListWalker(body))
+
     def delete_folder(self, button):
-        folder = button.get_label()
-        self.data.pop(folder, None)
+        self.data.pop(self.folder_to_delete, None)
 
         self.save_config()
         self.make_main_display()
@@ -235,7 +251,7 @@ class OpenedFolderView(BaseView):
 
         new_extension = urwid.Button(u'Add an Extension')
         urwid.connect_signal(new_extension, 'click', self.make_new_extension_display)
-        
+
         body.append(urwid.AttrMap(new_extension, None, focus_map='selected'))
 
         delete = urwid.Button(u'Delete an Extension')
@@ -247,7 +263,7 @@ class OpenedFolderView(BaseView):
         body.append(urwid.AttrMap(go_back, None, focus_map='selected'))
 
         self.main_widget.original_widget = urwid.ListBox(urwid.SimpleListWalker(body))
-        self.opened_folder_display = self.main_widget
+        self.opened_folder_display = self.main_widget.original_widget
 
     def make_new_extension_display(self, button):
         text = urwid.Text(u'Add an extension to {}'.format(self.opened_folder))
@@ -326,13 +342,32 @@ class OpenedFolderView(BaseView):
 
         for extension in self.data[self.opened_folder]:
             button = urwid.Button(extension)
-            urwid.connect_signal(button, 'click', self.delete_extension)
+            urwid.connect_signal(button, 'click', self.verify_delete_extension)
             body.append(urwid.AttrMap(button, None, focus_map='delete'))
 
         body.append(urwid.Divider())
         cancel = urwid.Button(u'Cancel')
         urwid.connect_signal(cancel, 'click', self.make_open_folder_display)
         body.append(urwid.AttrMap(cancel, None, focus_map='selected'))
+
+        self.main_widget.original_widget = urwid.ListBox(urwid.SimpleFocusListWalker(body))
+
+    def verify_delete_extension(self, button):
+        self.extension_to_delete = button.get_label()
+
+        text = urwid.Text(u'Delete extension <{}>?'.format(
+            self.extension_to_delete))
+
+        delete = urwid.Button(u'Delete')
+        urwid.connect_signal(delete, 'click', self.delete_extension)
+
+        cancel = urwid.Button(u'Cancel')
+        urwid.connect_signal(cancel, 'click', self.back_to_opened_folder_display)
+
+        body = [text,
+            urwid.Divider(),
+            urwid.AttrMap(delete, None, focus_map='delete'),
+            urwid.AttrMap(cancel, None, focus_map='selected')]
 
         self.main_widget.original_widget = urwid.ListBox(urwid.SimpleFocusListWalker(body))
 
