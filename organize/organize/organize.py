@@ -3,7 +3,7 @@ import shutil
 import os
 import json
 
-from classes.main_display import MainDisplay
+from classes.intro import IntroDisplay
 from the_parser import parser
 
 def do_stuff():
@@ -37,6 +37,6 @@ if __name__ == '__main__':
         do_stuff()
 
     if args.choice == 'config':
-        config = MainDisplay()
+        config = IntroDisplay()
         config.run()
 

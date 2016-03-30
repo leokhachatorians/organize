@@ -2,9 +2,9 @@ import urwid
 from .base import BaseView
 from .closed_folders import FoldersView
 
-class MainDisplay(BaseView):
+class IntroDisplay(BaseView):
     def __init__(self):
-        super(MainDisplay, self).__init__()
+        super(IntroDisplay, self).__init__()
         self.open_config()
         self.palette = [
             ('selected', 'white', 'dark blue'),
