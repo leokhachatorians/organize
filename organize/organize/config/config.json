@@ -11,8 +11,7 @@
     ],
     "Python": [
         ".py",
-        ".pyc",
-        ".2323"
+        ".pyc"
     ],
     "Text Documents": [
         ".txt",

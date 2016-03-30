@@ -33,9 +33,10 @@ def create_and_move(config, file):
 
 if __name__ == '__main__':
     args = parser.parse_args()
+    if len(sys.argv) <= 1:
+        do_stuff()
 
     if args.choice == 'config':
         config = MainDisplay()
         config.run()
 
-    do_stuff()

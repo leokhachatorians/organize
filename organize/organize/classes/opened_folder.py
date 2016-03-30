@@ -3,6 +3,7 @@ from .base import BaseView
 
 class OpenedFolderView(BaseView):
     def __init__(self, opened_folder, main_widget, main_display):
+        super(OpenedFolderView, self).__init__()
         self.opened_folder = opened_folder
         self.main_widget = main_widget
         self.main_display = main_display

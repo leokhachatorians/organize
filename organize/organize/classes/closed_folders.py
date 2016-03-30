@@ -4,6 +4,7 @@ from .base import BaseView
 
 class FoldersView(BaseView):
     def __init__(self, main_widget):
+        super(FoldersView, self).__init__()
         self.main_widget = main_widget
         self.open_config()
 

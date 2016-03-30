@@ -1,9 +1,15 @@
 import urwid
 import json
+import os
 
 class BaseView():
+    def __init__(self):
+        self.script_dir = os.path.dirname(__file__)
+        self.rel_path = "../config/config.json"
+        self.abs_path = os.path.join(self.script_dir, self.rel_path)
+
     def save_config(self):
-        with open('config.json', 'w') as data:
+        with open(self.abs_path, 'w') as data:
             json.dump(self.data, data, indent=4, sort_keys=True)
 
     def display_errors(self, errors, folder=False):
@@ -33,7 +39,7 @@ class BaseView():
         raise urwid.ExitMainLoop()
 
     def open_config(self):
-        with open('config.json') as config_file:
+        with open(self.abs_path) as config_file:
             self.data = json.load(config_file)
 
     def back_to_main_display(self, button=None):
