@@ -1,0 +1,22 @@
+{
+    "Music": [
+        ".mp3",
+        ".wav",
+        ".flac"
+    ],
+    "Pictures": [
+        ".jpg",
+        ".gif",
+        ".png"
+    ],
+    "Python": [
+        ".py",
+        ".pyc",
+        ".2323"
+    ],
+    "Text Documents": [
+        ".txt",
+        ".pdf",
+        ".doc"
+    ]
+}
